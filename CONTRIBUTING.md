@@ -2,13 +2,15 @@
 
 Thanks for your interest in contributing to the Robotomail channel plugin for Claude Code.
 
-## Getting started
+## How to contribute
 
-1. Fork and clone the repo
-2. Install dependencies: `bun install`
-3. Make your changes
-4. Test locally (see below)
-5. Open a pull request
+The best way to contribute right now is by opening a [GitHub issue](https://github.com/robotomail/claude-email/issues):
+
+- **Bug reports** — describe what happened, what you expected, and steps to reproduce
+- **Feature requests** — explain the use case and what you'd like to see
+- **Questions** — anything unclear about setup, usage, or architecture
+
+Pull requests are not open at this time. If you have a fix or improvement, open an issue describing it and we'll work with you to get it in.
 
 ## Local development
 
