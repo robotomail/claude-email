@@ -45,9 +45,22 @@ Set up the Robotomail email channel. This command handles signup (if needed), sa
 
 8. List the available mailboxes from the `/v1/mailboxes` response. Show each mailbox's `fullAddress` and `id`. If they only have one, use it automatically. Otherwise ask which one to use for the channel.
 
+### Display name
+
+9. Ask the user for a display name for outbound emails (e.g. "Claude Agent", "Support Bot", or their name). This is what recipients see as the sender name.
+
+10. Set the display name via the API:
+    ```
+    curl -s -X PATCH https://api.robotomail.com/v1/mailboxes/<MAILBOX_ID> \
+      -H "Authorization: Bearer <KEY>" \
+      -H "Content-Type: application/json" \
+      -d '{"displayName": "<DISPLAY_NAME>"}'
+    ```
+    Recipients will see e.g. "Claude Agent <slug@robotomail.co>" as the sender.
+
 ### Save configuration
 
-9. Write the configuration to `~/.claude/channels/robotomail/.env`:
+11. Write the configuration to `~/.claude/channels/robotomail/.env`:
    ```
    ROBOTOMAIL_API_KEY=rm_xxxxxxxxxxxx
    ROBOTOMAIL_MAILBOX_ID=<selected-mailbox-id>
@@ -55,13 +68,13 @@ Set up the Robotomail email channel. This command handles signup (if needed), sa
    ```
    Create the directory if it doesn't exist.
 
-10. Ask the user if they want to allow any sender addresses now. If yes, write `~/.claude/channels/robotomail/access.json`:
+12. Ask the user if they want to allow any sender addresses now. If yes, write `~/.claude/channels/robotomail/access.json`:
     ```json
     {"policy": "allowlist", "allowFrom": ["their-email@example.com"]}
     ```
     Suggest they allow their own email address so they can test.
 
-11. Tell the user to restart Claude Code with the channel enabled:
+13. Tell the user to restart Claude Code with the channel enabled:
     ```
     claude --dangerously-load-development-channels plugin:robotomail@robotomail
     ```
