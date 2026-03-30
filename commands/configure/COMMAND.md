@@ -1,3 +1,7 @@
+---
+description: Set up Robotomail email channel — sign up or enter API key, pick a mailbox, save credentials
+---
+
 # /robotomail:configure
 
 Set up the Robotomail email channel. This command handles signup (if needed), saves your API key, and selects a mailbox so the channel server can connect.

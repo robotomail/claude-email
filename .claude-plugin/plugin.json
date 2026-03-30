@@ -1,6 +1,6 @@
 {
   "name": "robotomail",
-  "description": "Email channel for Claude Code via Robotomail. Receive and reply to emails in your session.",
+  "description": "Give Claude a real email inbox. Receive and reply to emails in your session via Robotomail.",
   "version": "0.3.0",
   "keywords": ["channel", "email", "robotomail", "mcp"]
 }

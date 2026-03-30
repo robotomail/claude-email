@@ -1,3 +1,8 @@
+---
+name: email
+description: Send, receive, and manage email through Robotomail's API. Use when the user wants to send an email, check their inbox, or manage mailboxes.
+---
+
 # Robotomail Email Skill
 
 Use this skill when the user wants to send, receive, or manage email through Robotomail's API. This works without the channel plugin — it's direct API access.

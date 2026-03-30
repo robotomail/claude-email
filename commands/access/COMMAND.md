@@ -1,3 +1,7 @@
+---
+description: Manage who can email Claude — allow/deny senders, set access policy (allowlist, pairing, open)
+---
+
 # /robotomail:access
 
 Manage who can send emails that reach your Claude Code session. This controls the sender allowlist for the Robotomail channel.
