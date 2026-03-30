@@ -1,22 +1,49 @@
 # /robotomail:configure
 
-Set up the Robotomail email channel. This command saves your API key and mailbox selection so the channel server can connect.
+Set up the Robotomail email channel. This command handles signup (if needed), saves your API key, and selects a mailbox so the channel server can connect.
 
 ## What to do
 
-1. Ask the user for their Robotomail API key (starts with `rm_`). If they don't have one, point them to https://robotomail.com/sign-up to create an account, or tell them their agent can sign up at https://robotomail.com/skill.
+1. If a configuration already exists at `~/.claude/channels/robotomail/.env`, show the current mailbox address and ask if they want to reconfigure. If not, stop.
 
-2. Validate the key by calling:
+2. Ask the user: **"Do you already have a Robotomail account?"**
+
+### If they have an account
+
+3. Ask for their API key (starts with `rm_`).
+
+4. Validate the key by calling:
    ```
    curl -s -H "Authorization: Bearer <KEY>" https://api.robotomail.com/v1/mailboxes
    ```
-   If it returns 401, the key is invalid.
+   If it returns 401, the key is invalid. Ask them to try again.
 
-3. List the available mailboxes from the response. Show each mailbox's `fullAddress` and `id`.
+5. Skip to **step 8** (mailbox selection).
 
-4. Ask the user which mailbox to use for the channel. If they only have one, use it automatically.
+### If they need to sign up
 
-5. Write the configuration to `~/.claude/channels/robotomail/.env`:
+3. Ask for their email address, a password (min 8 characters), and a slug (lowercase, letters/numbers/hyphens — this becomes their mailbox address prefix).
+
+4. Create the account via the API:
+   ```
+   curl -s -X POST https://api.robotomail.com/v1/signup \
+     -H "Content-Type: application/json" \
+     -d '{"email": "<EMAIL>", "password": "<PASSWORD>", "slug": "<SLUG>"}'
+   ```
+
+5. The response includes `apiKey` and `mailbox.id`. Save both.
+
+6. Tell the user: **"Check your email for a verification link. You need to verify before you can send email. Receiving works immediately."**
+
+7. Skip to **step 9** (write config), using the mailbox from the signup response.
+
+### Mailbox selection (existing accounts)
+
+8. List the available mailboxes from the `/v1/mailboxes` response. Show each mailbox's `fullAddress` and `id`. If they only have one, use it automatically. Otherwise ask which one to use for the channel.
+
+### Save configuration
+
+9. Write the configuration to `~/.claude/channels/robotomail/.env`:
    ```
    ROBOTOMAIL_API_KEY=rm_xxxxxxxxxxxx
    ROBOTOMAIL_MAILBOX_ID=<selected-mailbox-id>
@@ -24,13 +51,19 @@ Set up the Robotomail email channel. This command saves your API key and mailbox
    ```
    Create the directory if it doesn't exist.
 
-6. Tell the user to restart Claude Code with the channel enabled:
-   ```
-   claude --dangerously-load-development-channels server:robotomail
-   ```
+10. Ask the user if they want to allow any sender addresses now. If yes, write `~/.claude/channels/robotomail/access.json`:
+    ```json
+    {"policy": "allowlist", "allowFrom": ["their-email@example.com"]}
+    ```
+    Suggest they allow their own email address so they can test.
+
+11. Tell the user to restart Claude Code with the channel enabled:
+    ```
+    claude --dangerously-load-development-channels server:robotomail
+    ```
 
 ## Important
 
 - Never log or display the full API key after saving it.
 - The `.env` file should only be readable by the current user (chmod 600 if possible).
-- If a configuration already exists, show the current mailbox address and ask if they want to reconfigure.
+- The free tier includes 1 mailbox, 50 sends/day, no credit card required.
