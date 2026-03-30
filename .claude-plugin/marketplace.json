@@ -1,0 +1,26 @@
+{
+  "name": "robotomail",
+  "owner": {
+    "name": "Robotomail",
+    "email": "support@robotomail.com"
+  },
+  "metadata": {
+    "description": "Email plugins for Claude Code by Robotomail"
+  },
+  "plugins": [
+    {
+      "name": "robotomail",
+      "source": "./",
+      "description": "Email channel for Claude Code. Give Claude a real inbox — receive and reply to emails in your session.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Robotomail"
+      },
+      "homepage": "https://robotomail.com",
+      "repository": "https://github.com/robotomail/claude-email",
+      "license": "MIT",
+      "keywords": ["channel", "email", "robotomail", "mcp"],
+      "category": "external-integrations"
+    }
+  ]
+}

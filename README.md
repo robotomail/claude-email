@@ -10,25 +10,27 @@ Email channel plugin that delivers inbound emails from a [Robotomail](https://ro
 - Claude can compose new emails using the `send_email` tool
 - Sender allowlist prevents unwanted emails from reaching Claude
 
+## Install
+
+### From the Robotomail marketplace
+
+```
+/plugin marketplace add robotomail/claude-email
+/plugin install robotomail@robotomail
+```
+
+### From source (development)
+
+```bash
+git clone https://github.com/robotomail/claude-email.git
+claude --plugin-dir ./claude-email --dangerously-load-development-channels server:robotomail
+```
+
 ## Setup
 
-### 1. Install
+### 1. Configure
 
-```bash
-git clone https://github.com/tinybotlabs/robotomail-channel.git
-cd robotomail-channel
-bun install
-```
-
-### 2. Configure
-
-Launch Claude Code with the channel and run the configure command:
-
-```bash
-claude --dangerously-load-development-channels server:robotomail
-```
-
-Then in your session:
+Run the configure command in your Claude Code session:
 
 ```
 /robotomail:configure
@@ -36,7 +38,7 @@ Then in your session:
 
 This walks you through signup (or entering an existing API key) and saves your credentials.
 
-### 3. Allow senders
+### 2. Allow senders
 
 By default, all senders are blocked. Allow the addresses you want to reach Claude:
 
@@ -44,13 +46,9 @@ By default, all senders are blocked. Allow the addresses you want to reach Claud
 /robotomail:access allow jane@example.com
 ```
 
-### 4. Restart
+### 3. Restart and test
 
-```bash
-claude --dangerously-load-development-channels server:robotomail
-```
-
-Send an email to your mailbox address. It appears in your Claude Code session.
+Restart Claude Code, then send an email to your mailbox address. It appears in your session.
 
 ## Commands
 
