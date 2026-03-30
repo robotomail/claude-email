@@ -108,13 +108,7 @@ All senders are forwarded to Claude. Not recommended — any email to the mailbo
 
 ## Display name
 
-Set a display name so replies from Claude show a proper sender name instead of just the email address:
-
-```
-/robotomail:access  # not the right command for this — use configure
-```
-
-During `/robotomail:configure`, you'll be asked for a display name. This calls `PATCH /v1/mailboxes/:id` with `{ "displayName": "Claude Agent" }`. Recipients will see "Claude Agent <slug@robotomail.co>" as the sender.
+Set a display name so replies from Claude show a proper sender name instead of just the email address. During `/robotomail:configure`, you'll be asked for a display name. Recipients will see e.g. "Claude Agent <slug@robotomail.co>" as the sender.
 
 You can also set it directly via the API:
 
