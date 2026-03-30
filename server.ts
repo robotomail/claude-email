@@ -177,7 +177,21 @@ async function handleInboundEmail(event: SSEEvent): Promise<void> {
   const hasAttachments = msgDetails?.hasAttachments ?? false;
 
   // Build content (plain text, truncated if needed)
+  // Fall back to stripped HTML if no plain text part exists
   let bodyText = data.body_text;
+  if (!bodyText.trim() && data.body_html) {
+    bodyText = data.body_html
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .trim();
+  }
   let truncated = false;
   if (bodyText.length > MAX_CONTENT_BYTES) {
     bodyText = bodyText.slice(0, MAX_CONTENT_BYTES);
@@ -238,9 +252,16 @@ sse.start().catch((err) => {
   console.error("[robotomail] SSE fatal:", err);
 });
 
-// Warn if open policy
-if (access.getState().policy === "open") {
+// Log access policy on startup
+const policy = access.getState().policy;
+if (policy === "open") {
   console.error(
-    "[robotomail] WARNING: Access policy is 'open' — all senders will be forwarded to Claude. Run /robotomail:access to configure.",
+    "[robotomail] WARNING: Access policy is 'open' — all senders will be forwarded to Claude. Run /robotomail:access to restrict.",
   );
+} else if (policy === "allowlist" && access.getState().allowFrom.length === 0) {
+  console.error(
+    "[robotomail] Access policy is 'allowlist' but no senders are allowed. Run /robotomail:access allow <email> to add senders.",
+  );
+} else {
+  console.error(`[robotomail] Access policy: ${policy}`);
 }

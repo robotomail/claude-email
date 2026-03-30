@@ -4,7 +4,7 @@ import { randomBytes } from "crypto";
 import type { AccessState, AccessPolicy } from "./types";
 
 const DEFAULT_STATE: AccessState = {
-  policy: "open",
+  policy: "allowlist",
   allowFrom: [],
   pending: {},
 };
@@ -20,6 +20,8 @@ export class AccessControl {
 
   /** Check if a sender is allowed to deliver messages. */
   check(senderEmail: string): { allowed: boolean; pairingCode?: string } {
+    // Reload from disk so external changes (e.g. /robotomail:access) take effect immediately
+    this.state = this.load();
     const normalized = senderEmail.toLowerCase().trim();
 
     switch (this.state.policy) {
