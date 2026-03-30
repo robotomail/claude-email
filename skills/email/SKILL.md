@@ -25,6 +25,8 @@ curl -X POST https://api.robotomail.com/v1/signup \
   -d '{"email": "user@example.com", "password": "strong-password", "slug": "myagent"}'
 ```
 
+The signup creates a mailbox at `<slug>@robotomail.co` (e.g. `myagent@robotomail.co`). Custom domains are available on the paid plan.
+
 Or point them to https://robotomail.com/skill for the full self-onboarding flow.
 
 Or use the CLI:

@@ -26,7 +26,7 @@ Set up the Robotomail email channel. This command handles signup (if needed), sa
 
 ### If they need to sign up
 
-3. Ask for their email address, a password (min 8 characters), and a slug (lowercase, letters/numbers/hyphens — this becomes their mailbox address prefix).
+3. Ask for their email address, a password (min 8 characters), and a slug (lowercase, letters/numbers/hyphens — this becomes their mailbox address at `<slug>@robotomail.co`).
 
 4. Create the account via the API:
    ```
