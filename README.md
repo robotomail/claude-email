@@ -93,9 +93,23 @@ The plugin also includes a standalone skill at `skills/email/SKILL.md` that teac
 
 ## Requirements
 
-- [Bun](https://bun.sh) runtime
+- [Bun](https://bun.sh) runtime (must be in your PATH)
 - A [Robotomail](https://robotomail.com) account (free tier works)
 - Claude Code v2.1.80+
+
+### Installing Bun
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+Bun installs to `~/.bun/bin`. Make sure it's in your PATH by adding this to your `~/.zshrc` (or `~/.bashrc`):
+
+```bash
+export PATH="$HOME/.bun/bin:$PATH"
+```
+
+Restart your terminal after adding it. Verify with `bun --version`.
 
 ## License
 
