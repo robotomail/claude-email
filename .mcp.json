@@ -1,10 +1,8 @@
 {
   "mcpServers": {
     "robotomail": {
-      "type": "stdio",
       "command": "bun",
-      "args": ["run", "server.ts"],
-      "env": {}
+      "args": ["run", "--cwd", "${CLAUDE_PLUGIN_ROOT}", "--shell=bun", "--silent", "start"]
     }
   }
 }
