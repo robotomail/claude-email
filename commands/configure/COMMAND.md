@@ -35,7 +35,7 @@ Set up the Robotomail email channel. This command handles signup (if needed), sa
      -d '{"email": "<EMAIL>", "password": "<PASSWORD>", "slug": "<SLUG>"}'
    ```
 
-5. The response includes `apiKey` and `mailbox.id`. Save both.
+5. The response includes `api_key.key` (the API key) and `mailbox.id`. Save both.
 
 6. Tell the user: **"Check your email for a verification link. You need to verify before you can send email. Receiving works immediately."**
 
@@ -70,7 +70,7 @@ Set up the Robotomail email channel. This command handles signup (if needed), sa
 
 12. Ask the user if they want to allow any sender addresses now. If yes, write `~/.claude/channels/robotomail/access.json`:
     ```json
-    {"policy": "allowlist", "allowFrom": ["their-email@example.com"]}
+    {"policy": "allowlist", "allowFrom": ["their-email@example.com"], "pending": {}}
     ```
     Suggest they allow their own email address so they can test.
 
