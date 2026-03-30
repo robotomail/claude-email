@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "robotomail": {
+      "type": "stdio",
+      "command": "bun",
+      "args": ["run", "server.ts"],
+      "env": {}
+    }
+  }
+}
