@@ -158,10 +158,11 @@ export class SSEClient {
     this.processing = true;
 
     while (this.eventQueue.length > 0) {
-      const event = this.eventQueue.shift()!;
+      const event = this.eventQueue[0]!;
       try {
         await this.options.onEvent(event);
-        // Only commit the ID after successful handling
+        this.eventQueue.shift(); // Remove only after success
+        // Commit the ID after successful handling
         if (event.id) {
           this.lastEventId = event.id;
           this.seenIds.add(event.id);
@@ -175,7 +176,12 @@ export class SSEClient {
         this.options.onError(
           err instanceof Error ? err : new Error(String(err)),
         );
-        // Don't advance lastEventId — event will be replayed on reconnect
+        // Stop processing. The failed event stays uncommitted, so
+        // lastEventId is not advanced past it. Drain the rest of the
+        // queue — all events (including the failed one) will replay
+        // from lastEventId on the next reconnect.
+        this.eventQueue.length = 0;
+        break;
       }
     }
 
