@@ -63,7 +63,7 @@ Set up the Robotomail email channel. This command handles signup (if needed), sa
 
 11. Tell the user to restart Claude Code with the channel enabled:
     ```
-    claude --dangerously-load-development-channels server:robotomail
+    claude --dangerously-load-development-channels plugin:robotomail@robotomail
     ```
 
 ## Important
