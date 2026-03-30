@@ -5,7 +5,7 @@ import {
   ListToolsRequestSchema,
   CallToolRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { getConfig } from "./config";
+import { getConfig, getStateDir } from "./config";
 import { SSEClient } from "./sse";
 import { sendEmail, fetchMessage } from "./send";
 import { AccessControl } from "./access";
@@ -16,7 +16,7 @@ import type { SSEEvent, SendEmailInput } from "./types";
 // ---------------------------------------------------------------------------
 
 const config = getConfig();
-const access = new AccessControl(config.stateDir);
+const access = new AccessControl(getStateDir());
 
 const MAX_CONTENT_BYTES = 50_000; // 50KB truncation limit
 
@@ -123,6 +123,13 @@ mcp.setRequestHandler(ListToolsRequestSchema, async () => ({
 }));
 
 mcp.setRequestHandler(CallToolRequestSchema, async (req) => {
+  if (!config) {
+    return {
+      content: [{ type: "text" as const, text: "Robotomail is not configured. Run /robotomail:configure first." }],
+      isError: true,
+    };
+  }
+
   const input = req.params.arguments as unknown as SendEmailInput;
 
   if (req.params.name === "reply_email" || req.params.name === "send_email") {
@@ -172,7 +179,7 @@ async function handleInboundEmail(event: SSEEvent): Promise<void> {
   }
 
   // Fetch full message for RFC Message-ID and attachment info
-  const msgDetails = await fetchMessage(config, data.mailbox_id, data.message_id);
+  const msgDetails = config ? await fetchMessage(config, data.mailbox_id, data.message_id) : null;
   const rfcMessageId = msgDetails?.rfcMessageId ?? "";
   const hasAttachments = msgDetails?.hasAttachments ?? false;
 
@@ -237,31 +244,34 @@ async function handleInboundEmail(event: SSEEvent): Promise<void> {
 
 await mcp.connect(new StdioServerTransport());
 
-const sseUrl = `${config.apiBase}/v1/events`;
+if (config) {
+  const sseUrl = `${config.apiBase}/v1/events`;
 
-const sse = new SSEClient({
-  url: sseUrl,
-  apiKey: config.apiKey,
-  mailboxId: config.mailboxId,
-  onEvent: handleInboundEmail,
-  onError: (err) => console.error("[robotomail]", err.message),
-  onConnected: () => console.error("[robotomail] SSE connected"),
-});
+  const sse = new SSEClient({
+    url: sseUrl,
+    apiKey: config.apiKey,
+    mailboxId: config.mailboxId,
+    onEvent: handleInboundEmail,
+    onError: (err) => console.error("[robotomail]", err.message),
+    onConnected: () => console.error("[robotomail] SSE connected"),
+  });
 
-sse.start().catch((err) => {
-  console.error("[robotomail] SSE fatal:", err);
-});
+  sse.start().catch((err) => {
+    console.error("[robotomail] SSE fatal:", err);
+  });
 
-// Log access policy on startup
-const policy = access.getState().policy;
-if (policy === "open") {
-  console.error(
-    "[robotomail] WARNING: Access policy is 'open' — all senders will be forwarded to Claude. Run /robotomail:access to restrict.",
-  );
-} else if (policy === "allowlist" && access.getState().allowFrom.length === 0) {
-  console.error(
-    "[robotomail] Access policy is 'allowlist' but no senders are allowed. Run /robotomail:access allow <email> to add senders.",
-  );
+  const policy = access.getState().policy;
+  if (policy === "open") {
+    console.error(
+      "[robotomail] WARNING: Access policy is 'open' — all senders will be forwarded to Claude. Run /robotomail:access to restrict.",
+    );
+  } else if (policy === "allowlist" && access.getState().allowFrom.length === 0) {
+    console.error(
+      "[robotomail] Access policy is 'allowlist' but no senders are allowed. Run /robotomail:access allow <email> to add senders.",
+    );
+  } else {
+    console.error(`[robotomail] Access policy: ${policy}`);
+  }
 } else {
-  console.error(`[robotomail] Access policy: ${policy}`);
+  console.error("[robotomail] Not configured. Run /robotomail:configure to set up.");
 }

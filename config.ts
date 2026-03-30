@@ -37,13 +37,10 @@ export interface Config {
   stateDir: string;
 }
 
-export function getConfig(): Config {
+/** Returns null if not configured yet (API key missing). */
+export function getConfig(): Config | null {
   const apiKey = process.env.ROBOTOMAIL_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      "ROBOTOMAIL_API_KEY is required. Run /robotomail:configure or set it in your environment.",
-    );
-  }
+  if (!apiKey) return null;
 
   return {
     apiKey,
@@ -51,4 +48,8 @@ export function getConfig(): Config {
     mailboxId: process.env.ROBOTOMAIL_MAILBOX_ID ?? null,
     stateDir: STATE_DIR,
   };
+}
+
+export function getStateDir(): string {
+  return STATE_DIR;
 }
