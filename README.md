@@ -14,10 +14,20 @@ Email channel plugin that delivers inbound emails from a [Robotomail](https://ro
 
 ### From the Robotomail marketplace
 
+Add the marketplace and install the plugin from within Claude Code:
+
 ```
 /plugin marketplace add robotomail/claude-email
 /plugin install robotomail@robotomail
 ```
+
+Then launch with the channel enabled:
+
+```bash
+claude --dangerously-load-development-channels plugin:robotomail@robotomail
+```
+
+> The `--dangerously-load-development-channels` flag is required during the channels research preview. It will be removed once the plugin is accepted into the official Claude Code marketplace.
 
 ### From source (development)
 
