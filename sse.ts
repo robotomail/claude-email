@@ -18,6 +18,8 @@ export class SSEClient {
   private lastEventId: string | null = null;
   private seenIds = new Set<string>();
   private seenIdOrder: string[] = [];
+  private eventQueue: SSEEvent[] = [];
+  private processing = false;
   private abortController: AbortController | null = null;
   private heartbeatTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -146,20 +148,43 @@ export class SSEClient {
     }
   }
 
-  private handleEvent(id: string, event: string, dataStr: string): void {
-    // Track last event ID for reconnection
-    if (id) this.lastEventId = id;
+  /**
+   * Process queued events sequentially. Events are only marked as seen
+   * (and lastEventId advanced) after the handler completes successfully.
+   * This prevents event loss on handler failure and avoids reordering.
+   */
+  private async processQueue(): Promise<void> {
+    if (this.processing) return;
+    this.processing = true;
 
-    // Dedup
-    if (id && this.seenIds.has(id)) return;
-    if (id) {
-      this.seenIds.add(id);
-      this.seenIdOrder.push(id);
-      while (this.seenIdOrder.length > DEDUP_BUFFER_SIZE) {
-        const oldest = this.seenIdOrder.shift()!;
-        this.seenIds.delete(oldest);
+    while (this.eventQueue.length > 0) {
+      const event = this.eventQueue.shift()!;
+      try {
+        await this.options.onEvent(event);
+        // Only commit the ID after successful handling
+        if (event.id) {
+          this.lastEventId = event.id;
+          this.seenIds.add(event.id);
+          this.seenIdOrder.push(event.id);
+          while (this.seenIdOrder.length > DEDUP_BUFFER_SIZE) {
+            const oldest = this.seenIdOrder.shift()!;
+            this.seenIds.delete(oldest);
+          }
+        }
+      } catch (err) {
+        this.options.onError(
+          err instanceof Error ? err : new Error(String(err)),
+        );
+        // Don't advance lastEventId — event will be replayed on reconnect
       }
     }
+
+    this.processing = false;
+  }
+
+  private handleEvent(id: string, event: string, dataStr: string): void {
+    // Dedup before parsing (cheap check)
+    if (id && this.seenIds.has(id)) return;
 
     try {
       const envelope = JSON.parse(dataStr) as {
@@ -174,12 +199,9 @@ export class SSEClient {
         data: envelope.data,
       };
 
-      // Fire-and-forget — errors logged by caller
-      Promise.resolve(this.options.onEvent(sseEvent)).catch((err) => {
-        this.options.onError(
-          err instanceof Error ? err : new Error(String(err)),
-        );
-      });
+      // Enqueue for sequential processing — see processQueue()
+      this.eventQueue.push(sseEvent);
+      this.processQueue();
     } catch {
       this.options.onError(new Error(`Malformed SSE data: ${dataStr.slice(0, 100)}`));
     }
