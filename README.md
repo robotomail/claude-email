@@ -14,10 +14,13 @@ Email channel plugin that delivers inbound emails from a [Robotomail](https://ro
 
 ### From the Robotomail marketplace
 
-Add the marketplace and install the plugin from within Claude Code:
+Add the marketplace and install the plugin from within Claude Code (run each command separately):
 
 ```
 /plugin marketplace add robotomail/claude-email
+```
+
+```
 /plugin install robotomail@robotomail
 ```
 
